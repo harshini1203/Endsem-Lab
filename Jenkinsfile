@@ -1,11 +1,11 @@
-
 pipeline {
     agent any
 
     tools {
-    maven 'Maven3'
-    jdk 'JDK17'
+        maven 'Maven3'
+        jdk 'JDK17'
     }
+
     environment {
         DOCKER_IMAGE = 'my-app'
         DOCKER_REGISTRY = 'your-registry'
@@ -21,10 +21,11 @@ pipeline {
         stage('Build and Test') {
             steps {
                 script {
-                    docker.build("${DOCKER_IMAGE}-builder", "--target builder .")
-                    
-                    // Run tests
-                    sh "docker run --rm ${DOCKER_IMAGE}-builder mvn test"
+                    // Build Docker image with target 'builder'
+                    bat 'docker build -t ${DOCKER_IMAGE}-builder --target builder .'
+
+                    // Run tests using Maven inside Docker container
+                    bat "docker run --rm ${DOCKER_IMAGE}-builder mvn test"
                 }
             }
         }
@@ -43,7 +44,8 @@ pipeline {
                         imageTag = 'staging'
                     }
 
-                    docker.build("${DOCKER_IMAGE}:${imageTag}", "--build-arg MAVEN_PROFILE=${mavenProfile} .")
+                    // Build Docker image with dynamic tag based on branch
+                    bat "docker build -t ${DOCKER_IMAGE}:${imageTag} --build-arg MAVEN_PROFILE=${mavenProfile} ."
                 }
             }
         }
@@ -52,17 +54,17 @@ pipeline {
             steps {
                 script {
                     if (env.BRANCH_NAME == 'main') {
-                        // Deploy to production
-                        sh """
-                            docker stop prod-app || true
-                            docker rm prod-app || true
+                        // Deploy to production using Docker on Windows
+                        bat """
+                            docker stop prod-app || echo 'No prod-app to stop'
+                            docker rm prod-app || echo 'No prod-app to remove'
                             docker run -d --name prod-app -p 8080:8080 ${DOCKER_IMAGE}:production
                         """
                     } else if (env.BRANCH_NAME == 'staging') {
-                        // Deploy to staging
-                        sh """
-                            docker stop staging-app || true
-                            docker rm staging-app || true
+                        // Deploy to staging using Docker on Windows
+                        bat """
+                            docker stop staging-app || echo 'No staging-app to stop'
+                            docker rm staging-app || echo 'No staging-app to remove'
                             docker run -d --name staging-app -p 8081:8080 ${DOCKER_IMAGE}:staging
                         """
                     }
@@ -78,10 +80,20 @@ pipeline {
                     // Wait for application to start
                     sleep(time: 30, unit: 'SECONDS')
                     
-                    // Simple health check
-                    sh "curl -f http://localhost:${port}/health || exit 1"
+                    // Perform a health check with curl (for Windows, use curl from Git Bash or equivalent)
+                    bat "curl -f http://localhost:${port}/health || exit 1"
                 }
             }
+        }
+    }
+
+    post {
+        failure {
+            echo "The pipeline has failed. Please check the logs."
+        }
+
+        success {
+            echo "The pipeline completed successfully!"
         }
     }
 }
