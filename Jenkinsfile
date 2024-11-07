@@ -1,10 +1,11 @@
-tools {
-    maven 'Maven3'
-    jdk 'JDK17'
-}
+
 pipeline {
     agent any
-
+    
+    tools {
+    maven 'Maven3'
+    jdk 'JDK17'
+    }
     environment {
         DOCKER_IMAGE = 'my-app'
         DOCKER_REGISTRY = 'your-registry'
