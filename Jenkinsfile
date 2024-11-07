@@ -1,3 +1,7 @@
+tools {
+    maven 'Maven3'
+    jdk 'JDK17'
+}
 pipeline {
     agent any
 
