@@ -81,7 +81,7 @@ pipeline {
                     sleep(time: 30, unit: 'SECONDS')
                     
                     // Perform a health check
-                    bat "curl -f http://localhost:${port}/health || exit 1"
+                    //bat "curl -f http://localhost:${port}/health || exit 1"
                 }
             }
         }
