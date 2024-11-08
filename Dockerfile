@@ -1,8 +1,8 @@
 # Step 1: Build Stage
 FROM maven:3.8.4-openjdk-17 AS builder
 
-# Install Git in the builder image
-RUN apt-get update && apt-get install -y git
+# Install Git using apk (Alpine package manager)
+RUN apk update && apk add git
 
 # Set the working directory
 WORKDIR /app
