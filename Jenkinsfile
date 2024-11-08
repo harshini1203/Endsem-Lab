@@ -44,8 +44,8 @@ pipeline {
                         imageTag = 'staging'
                     }
 
-                    // Build Docker image using the correct tag format
-                    bat "docker build -t %DOCKER_IMAGE%:${imageTag} --build-arg MAVEN_PROFILE=${mavenProfile} ."
+                    // // Build Docker image using the correct tag format
+                    // bat "docker build -t %DOCKER_IMAGE%:${imageTag} --build-arg MAVEN_PROFILE=${mavenProfile} ."
                 }
             }
         }
